@@ -174,20 +174,40 @@ jobs:
       # ------------------------------------------------------
       - name: Push SHA image
         if: github.event_name == 'push'
+        env:
+            DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-            docker push "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:sha-${GITHUB_SHA}"
+            SOURCE_IMAGE="${IMAGE_NAME}:${GITHUB_SHA}"
+            TARGET_IMAGE="${DOCKERHUB_USERNAME}/${IMAGE_NAME}:sha-${GITHUB_SHA}"
+            docker image inspect "$SOURCE_IMAGE"
+            docker tag "$SOURCE_IMAGE" "$TARGET_IMAGE"
+            docker image inspect "$TARGET_IMAGE"
+            docker push "$TARGET_IMAGE"
 
       - name: Push latest image
         if: github.ref == 'refs/heads/main'
+        env:
+            DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-            docker push "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest"
+            SOURCE_IMAGE="${IMAGE_NAME}:${GITHUB_SHA}"
+            TARGET_IMAGE="${DOCKERHUB_USERNAME}/${IMAGE_NAME}:latest"
+            docker image inspect "$SOURCE_IMAGE"
+            docker tag "$SOURCE_IMAGE" "$TARGET_IMAGE"
+            docker image inspect "$TARGET_IMAGE"
+            docker push "$TARGET_IMAGE"
 
       - name: Push version image
         if: startsWith(github.ref, 'refs/tags/v')
+        env:
+            DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
+            SOURCE_IMAGE="${IMAGE_NAME}:${GITHUB_SHA}"
             VERSION="${GITHUB_REF#refs/tags/}"
-            docker push "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${VERSION}"
-
+            TARGET_IMAGE="${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${VERSION}"
+            docker image inspect "$SOURCE_IMAGE"
+            docker tag "$SOURCE_IMAGE" "$TARGET_IMAGE"
+            docker image inspect "$TARGET_IMAGE"
+            docker push "$TARGET_IMAGE"
       # ------------------------------------------------------
       # Push latest image
       # ------------------------------------------------------
