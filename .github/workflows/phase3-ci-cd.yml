@@ -147,28 +147,26 @@ jobs:
       # ------------------------------------------------------
       # Tag image for Docker Hub
       # ------------------------------------------------------
-     
       - name: Tag Docker image
         if: github.event_name == 'push'
         env:
-            DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          run: |
-            SOURCE_IMAGE="${IMAGE_NAME}:${GITHUB_SHA}"
-            TARGET_IMAGE="${DOCKERHUB_USERNAME}/${IMAGE_NAME}"
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: |
+          SOURCE_IMAGE="${IMAGE_NAME}:${GITHUB_SHA}"
+          TARGET_IMAGE="${DOCKERHUB_USERNAME}/${IMAGE_NAME}"
 
-            docker image inspect "$SOURCE_IMAGE"
-            docker tag "$SOURCE_IMAGE" "${TARGET_IMAGE}:sha-${GITHUB_SHA}"
+          docker image inspect "$SOURCE_IMAGE"
+          docker tag "$SOURCE_IMAGE" "${TARGET_IMAGE}:sha-${GITHUB_SHA}"
 
-            if [ "$GITHUB_REF" = "refs/heads/main" ]; then
-              docker tag "$SOURCE_IMAGE" "${TARGET_IMAGE}:latest"
-            fi
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            docker tag "$SOURCE_IMAGE" "${TARGET_IMAGE}:latest"
+          fi
+           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/}"
+             docker tag "$SOURCE_IMAGE" "${TARGET_IMAGE}:${VERSION}"
+          fi
 
-            if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-              VERSION="${GITHUB_REF#refs/tags/}"
-              docker tag "$SOURCE_IMAGE" "${TARGET_IMAGE}:${VERSION}"
-            fi
-
-            docker images "$TARGET_IMAGE"
+          docker images "$TARGET_IMAGE"
 
       # ------------------------------------------------------
       # Push SHA image
