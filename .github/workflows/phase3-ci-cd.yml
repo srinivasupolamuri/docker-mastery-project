@@ -3,9 +3,11 @@ name: Phase 3 - CI/CD Docker Pipeline
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -34,17 +36,18 @@ jobs:
           pip install -r phase3-advanced/requirements.txt
           pip install -r phase3-advanced/requirements-dev.txt
 
-      - name: Lint
+      - name: Run Flake8
         working-directory: phase3-advanced
         run: python -m flake8 app test_main.py
 
-      - name: Run tests
+      - name: Run Pytest
         working-directory: phase3-advanced
         run: python -m pytest -q
 
   build-and-push:
     name: Build and Push Docker Image
     needs: test
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
@@ -55,26 +58,24 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Docker Hub
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push image
+      - name: Build and Push Image
         uses: docker/build-push-action@v6
         with:
           context: ./phase3-advanced
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: |
-            ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-            ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
 
-      - name: Scan published image
-        if: github.event_name != 'pull_request'
+      - name: Scan Published Image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
           format: table
           exit-code: '0'
           ignore-unfixed: true
