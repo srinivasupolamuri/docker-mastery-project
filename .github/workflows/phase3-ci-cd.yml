@@ -193,8 +193,10 @@ jobs:
       # ------------------------------------------------------
       - name: Push latest image
         if: github.ref == 'refs/heads/main'
+        env:
+            DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-          docker push "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest"
+            docker push "${DOCKERHUB_USERNAME}/${IMAGE_NAME}:latest"
 
       # ------------------------------------------------------
       # Push version image
