@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 app = FastAPI(
     title="Docker Mastery Demo API",
-    description="A tiny FastAPI service used to demonstrate Docker across three maturity phases.",
+    description="Advanced Docker demonstration application",
     version="1.2.0",
 )
 
@@ -21,7 +21,8 @@ def root():
 
 @app.get("/health")
 def health():
-    """Health check endpoint - used by the container HEALTHCHECK and CI smoke tests."""
+    """Health check endpoint used by the container."""
+    """Also used by CI smoke tests."""
     return {
         "status": "healthy",
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -30,7 +31,6 @@ def health():
 
 @app.get("/info")
 def info():
-    """Basic metadata about the running service."""
     return {
         "app": "docker-mastery-demo",
         "version": app.version,
