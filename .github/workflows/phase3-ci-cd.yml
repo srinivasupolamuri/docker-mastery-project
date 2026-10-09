@@ -185,8 +185,7 @@ jobs:
       - name: Push latest image
         if: github.ref == 'refs/heads/main'
         run: |
-          docker push \
-            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest"
+          docker push "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest"
 
       # ------------------------------------------------------
       # Push version image
@@ -196,5 +195,4 @@ jobs:
         run: |
           VERSION="${GITHUB_REF#refs/tags/}"
 
-          docker push \
-            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${VERSION}"
+          docker push "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${VERSION}"
