@@ -147,9 +147,10 @@ jobs:
       # ------------------------------------------------------
       # Tag image for Docker Hub
       # ------------------------------------------------------
-        - name: Tag Docker image
-          if: github.event_name == 'push'
-          env:
+     
+      - name: Tag Docker image
+        if: github.event_name == 'push'
+        env:
             DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           run: |
             SOURCE_IMAGE="${IMAGE_NAME}:${GITHUB_SHA}"
