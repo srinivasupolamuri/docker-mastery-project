@@ -150,46 +150,41 @@ jobs:
       - name: Tag Docker image
         if: github.event_name == 'push'
         env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        run: |
-<<<<<<< HEAD
+            DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          run: |
             SOURCE_IMAGE="${IMAGE_NAME}:${GITHUB_SHA}"
             TARGET_IMAGE="${DOCKERHUB_USERNAME}/${IMAGE_NAME}"
-=======
-          SOURCE_IMAGE="${IMAGE_NAME}:${GITHUB_SHA}"
-          TARGET_IMAGE="${DOCKERHUB_USERNAME}/${IMAGE_NAME}"
->>>>>>> 21042ae (Fix Docker Hub image push references)
 
-          docker image inspect "$SOURCE_IMAGE"
-          docker tag "$SOURCE_IMAGE" "${TARGET_IMAGE}:sha-${GITHUB_SHA}"
+            docker image inspect "$SOURCE_IMAGE"
+            docker tag "$SOURCE_IMAGE" "${TARGET_IMAGE}:sha-${GITHUB_SHA}"
 
-          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
-            docker tag "$SOURCE_IMAGE" "${TARGET_IMAGE}:latest"
-          fi
+            if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+              docker tag "$SOURCE_IMAGE" "${TARGET_IMAGE}:latest"
+            fi
 
-          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-            VERSION="${GITHUB_REF#refs/tags/}"
-            docker tag "$SOURCE_IMAGE" "${TARGET_IMAGE}:${VERSION}"
-          fi
+            if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+              VERSION="${GITHUB_REF#refs/tags/}"
+              docker tag "$SOURCE_IMAGE" "${TARGET_IMAGE}:${VERSION}"
+            fi
 
-          docker images "$TARGET_IMAGE"
+            docker images "$TARGET_IMAGE"
 
       # ------------------------------------------------------
       # Push SHA image
       # ------------------------------------------------------
-        - name: Push SHA image
-          if: github.event_name == 'push'
-          run: |
+      - name: Push SHA image
+        if: github.event_name == 'push'
+        run: |
             docker push "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:sha-${GITHUB_SHA}"
 
-        - name: Push latest image
-          if: github.ref == 'refs/heads/main'
-          run: |
+      - name: Push latest image
+        if: github.ref == 'refs/heads/main'
+        run: |
             docker push "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest"
 
-        - name: Push version image
-          if: startsWith(github.ref, 'refs/tags/v')
-          run: |
+      - name: Push version image
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
             VERSION="${GITHUB_REF#refs/tags/}"
             docker push "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${VERSION}"
 
