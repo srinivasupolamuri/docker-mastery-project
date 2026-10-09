@@ -192,8 +192,7 @@ jobs:
       # Push version image
       # ------------------------------------------------------
       - name: Push version image
-cd ~/docker-mastery-project
-nano .github/workflows/phase3-ci-cd.yml        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v')
         run: |
           VERSION="${GITHUB_REF#refs/tags/}"
 
