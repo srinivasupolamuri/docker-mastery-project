@@ -151,7 +151,7 @@ jobs:
         if: github.event_name == 'push'
         env:
             DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          run: |
+        run: |
             SOURCE_IMAGE="${IMAGE_NAME}:${GITHUB_SHA}"
             TARGET_IMAGE="${DOCKERHUB_USERNAME}/${IMAGE_NAME}"
 
